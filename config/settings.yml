@@ -1,0 +1,6 @@
+
+broker_end_point: http://cf-sharedfs-broker.10.244.0.34.xip.io
+broker_username: admin
+broker_password: password
+
+

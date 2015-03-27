@@ -10,6 +10,9 @@ gem 'rack-fiber_pool'
 gem 'faraday'
 gem 'em-http-request'
 gem 'sinatra-synchrony'
+gem 'sinatra-activerecord'
+gem 'rake'
+gem 'sqlite3'
 
 group :test do
   gem 'rack-test'

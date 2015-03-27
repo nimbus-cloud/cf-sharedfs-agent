@@ -4,6 +4,14 @@ require 'bunny'
 require 'json'
 require 'net/http'
 
+configure :development do
+  set :database, 'sqlite3:db/development.sqlite3'
+end
+
+configure :production do
+  set :database, 'sqlite3:/var/vcap/store/sharedfs/sharedfs.sqlite3'
+end
+
 configure :test do
   $logger = Logger.new("/dev/null")
 end
@@ -31,26 +39,5 @@ configure do
   settings_filename = ENV['SETTINGS_FILENAME'] ? ENV['SETTINGS_FILENAME'] : File.dirname(__FILE__) + '/../config/settings.yml'
   $logger.info("Loading settings file #{settings_filename}")
   $app_settings ||= YAML.load_file(settings_filename)
-
-  # deliberately block startup until this call is successful
-  $logger.info("Getting rabbitmq details")
-  status = 0
-  while status.to_i != 200 do
-    uri = URI.parse("#{$app_settings['broker_end_point']}/rabbitdetails")
-    http = Net::HTTP.new(uri.host, uri.port)
-    request = Net::HTTP::Get.new(uri.request_uri)
-    request.basic_auth($app_settings['broker_username'], $app_settings['broker_password'])
-    response = http.request(request)
-    status = response.code
-    if status.to_i == 200
-      json = JSON.parse(response.body)
-      $amqp_url = json['amqp_url']
-      break
-    end
-    sleep(1)
-    $logger.info("Retrying to get rabbit info... #{status}")
-  end
-
-  $logger.info("Got rabbitmq details")
 
 end

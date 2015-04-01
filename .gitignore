@@ -2,3 +2,5 @@
 tmp/*
 *.swp
 vendor/*
+db/development.sqlite3
+

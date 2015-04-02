@@ -7,5 +7,5 @@ agent_name: uniquename1
 
 agent_dns_address: dnsname1.somesite.com
 
-
+firewall_allow_rules: 10.225.0.34,10.225.0.35
 

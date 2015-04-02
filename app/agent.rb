@@ -207,6 +207,9 @@ class Agent
         :port => 22,
         :identity => key
       }
+      if $app_settings['firewall_allow_rules']
+        credentials[:firewall_allow_rules]=$app_settings['firewall_allow_rules']
+      end
       @logger.debug("Credentials are #{credentials.to_s}")
       success = true
     rescue Exception => e

@@ -208,7 +208,7 @@ class Agent
         :identity => key
       }
       if $app_settings['firewall_allow_rules']
-        credentials[:firewall_allow_rules]=$app_settings['firewall_allow_rules']
+        credentials[:firewall_allow_rules]=$app_settings['firewall_allow_rules'].map { |i| "'" + i.to_s + "'" }.join(",")
       end
       @logger.debug("Credentials are #{credentials.to_s}")
       success = true

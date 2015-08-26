@@ -75,6 +75,21 @@ class CFSharedFSAgent  < Sinatra::Base
     }
   end
 
+  get '/credentials/:service_id' do
+    content_type :json
+
+    service = Potato.new $logger
+    success, msg, credentials = service.credentials(params[:service_id])
+
+
+    {
+        :name => $app_settings['agent_name'],
+        :success => success,
+        :msg => msg,
+        :credentials => credentials
+    }.to_json
+  end
+
   # TODO: run on startup on EM - checks if all the users are there
   def start
     verify_users_exist
@@ -241,7 +256,6 @@ class Potato
     [false, e.message]
   end
 
-
   def unprovision(service_id, username)
     # We don't own this service
     return unless Service.exists?(:service_id => service_id)
@@ -261,6 +275,37 @@ class Potato
     [false, e.message]
   end
 
+  def credentials(service_id)
+    # We don't own this service
+    return unless Service.exists?(:service_id => :service_id)
+
+    @logger.info("Getting credentials for service: #{service_id}")
+    credentials = {}
+    begin
+      service = Service.where(service_id: :service_id).first
+      key = ''
+      file = File.new("/var/vcap/store/sharedfs/home/#{service.username}/.ssh/id_rsa", 'r')
+      while (line = file.gets)
+        key = key + line
+      end
+      file.close
+      credentials = {
+          :username => service.username,
+          :hostname => $app_settings['agent_dns_address'],
+          :host => $app_settings['agent_dns_address'],
+          :port => 22,
+          :identity => key
+      }
+      if $app_settings['firewall_allow_rules']
+        credentials[:firewall_allow_rules] = $app_settings['firewall_allow_rules'].map { |i| i.to_s }.join(',')
+      end
+
+      [true, 'OK', credentials]
+    rescue => e
+      @logger.error "error getting credentials: #{e.message}, backtrace: #{e.backtrace}"
+      [false, e.message, nil]
+  end
+
 
   private
 
@@ -271,5 +316,7 @@ class Potato
     m[0]
   end
 
+
+end
 
 end

@@ -5,7 +5,7 @@ require 'rack/fiber_pool'
 
 require_relative 'models/service'
 
-class CFSharedFSAgent  < Sinatra::Base
+class CFSharedFSAgent < Sinatra::Base
 
   # register Sinatra::ActiveRecordExtension
 
@@ -44,7 +44,7 @@ class CFSharedFSAgent  < Sinatra::Base
     {
         :name => $app_settings['agent_name'],
         :disk_size => '10000', # WTF ???
-        :disk_free => '1000',  # WTF ???
+        :disk_free => '1000', # WTF ???
         :cpu_load => '1000'
     }.to_json
   end
@@ -304,19 +304,19 @@ class Potato
     rescue => e
       @logger.error "error getting credentials: #{e.message}, backtrace: #{e.backtrace}"
       [false, e.message, nil]
+    end
+
+
+    private
+
+    # TODO: there must be a nicer way of doing this
+    def generate_username
+      result = File.open('/dev/urandom') { |x| x.read(16).unpack('H*')[0] }
+      m=/(.{10})$/.match(result)
+      m[0]
+    end
+
+
   end
-
-
-  private
-
-  # TODO: there must be a nicer way of doing this
-  def generate_username
-    result = File.open('/dev/urandom') { |x| x.read(16).unpack('H*')[0] }
-    m=/(.{10})$/.match(result)
-    m[0]
-  end
-
-
-end
 
 end

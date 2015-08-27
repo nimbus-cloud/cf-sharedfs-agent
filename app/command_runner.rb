@@ -6,7 +6,9 @@ module CommandRunner
   def execute_command(command)
     pid, out = nil, ''
     status = Timeout.timeout(5) do
-      Open4::popen4("/bin/bash -c \"#{command}\" 2>&1") do |p, stdin, stdout, stderr|
+        # Open4::popen4("/bin/bash -c \"#{command}\" 2>&1") do |p, stdin, stdout, stderr|
+        # above does not work when running: su - 5f091acbd4 -c 'ssh-keygen -q -N "" -f /var/vcap/store/sharedfs/home/5f091acbd4/.ssh/id_rsa'
+        Open4::popen4("#{command} 2>&1") do |p, stdin, stdout, stderr|
         pid = p
         while (o = stdout.gets) do
           out = out + o
@@ -32,6 +34,3 @@ end
 # execute_command "ls -la"
 # puts execute_command "df -h"
 # execute_command "echo 'abc def ghijk '; sleep 6"
-
-
-

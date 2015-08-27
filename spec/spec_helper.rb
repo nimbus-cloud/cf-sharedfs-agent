@@ -1,43 +1,23 @@
-ENV['RACK_ENV'] = 'test'
+# ENV['RACK_ENV'] = 'test'
 
+require 'rspec'
 require 'rack/test'
+require 'rspec/mocks'
+require 'json'
 
+DIR = File.dirname(__FILE__)
 
-def with_event_machine(options = {})
-  raise "no block given" unless block_given?
-  timeout = options[:timeout] ||= 10
+RSpec.shared_context :rack_test do
+  include Rack::Test::Methods
 
-  ::EM.epoll
-
-  ::EM.run do
-    quantum = 0.005
-    ::EM.set_quantum(quantum * 1000) # Lowest possible timer resolution
-    ::EM.set_heartbeat_interval(quantum) # Timeout connections asap
-    ::EM.add_timer(timeout) { raise "timeout" }
-
-    yield
+  def app
+    Rack::Builder.parse_file("#{DIR}/../config.ru").first
   end
+
+  def resp_hash
+    JSON.parse(last_response.body)
+  end
+
 end
 
-def done
-  raise "reactor not running" if !::EM.reactor_running?
 
-  ::EM.next_tick {
-    # Assert something to show a spec-pass
-    :done.should == :done
-    ::EM.stop_event_loop
-  }
-end
-
-RSpec.configure do |config|
-  config.include Rack::Test::Methods
-
-  # Too much conflicting information on the internet about rspec
-  config.mock_with :rspec do |c|
-    c.syntax = [:should, :expect]
-  end
-  config.expect_with :rspec do |c|
-    c.syntax = [:should, :expect]
-  end
-  
-end

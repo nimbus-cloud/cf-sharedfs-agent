@@ -11,14 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150327144525) do
+ActiveRecord::Schema.define(version: 20150401084456) do
 
   create_table "services", force: :cascade do |t|
-    t.string "service_id", limit: 255
-    t.string "plan_id",    limit: 255
-    t.string "quota",      limit: 255
+    t.string "service_id"
+    t.string "plan_id"
+    t.string "quota"
     t.string "username"
     t.string "uid"
+    t.string "gid"
   end
 
   add_index "services", ["service_id"], name: "index_services_on_service_id"

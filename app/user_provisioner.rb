@@ -40,9 +40,9 @@ class UserProvisioner
 
     # TODO - FIX THIS
     result = execute_command("id -u #{username}")
-    useruid = result[:output].chomp
+    useruid = result.chomp
     result = execute_command("id -g #{username}",)
-    groupid = result[:output].chomp
+    groupid = result.chomp
 
     #TODO : Set up quota here as well
     Service.create(

@@ -14,22 +14,24 @@ module CommandRunner
       end
     end
     puts "Finished command \"#{command}\", STATUS: #{status.to_i}, OUTPUT:\n#{out}"
-    status.to_i
+    raise "Command \"#{command}\" failed, PID: #{pid}" unless status.to_i == 0
+    out
   rescue Timeout::Error
     puts "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
     Process.kill 9, pid
     # we need to collect status so it doesn't
     # stick around as zombie process
     Process.wait pid
-    -1
+    raise "Command \"#{command}\" timed out, PID: #{pid}"
   end
 
 end
 
 # include ::CommandRunner
-# execute_command "echo 'abc def ghijk '; sleep 6"
+#
 # execute_command "ls -la"
 # puts execute_command "df -h"
+# execute_command "echo 'abc def ghijk '; sleep 6"
 
 
 

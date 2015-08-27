@@ -13,6 +13,30 @@ class CFSharedFSAgent < Sinatra::Base
 
   register Sinatra::ActiveRecordExtension
 
+  configure :development do
+    set :database, 'sqlite3:db/development.sqlite3'
+  end
+
+  configure :production do
+    set :database, 'sqlite3:/var/vcap/store/sharedfs/sharedfs.sqlite3'
+  end
+
+  configure do
+    $logger.info('*==========================*')
+    $logger.info('*cf-sharedfs agent starting*')
+    $logger.info('*==========================*')
+
+    settings_filename = ENV['SETTINGS_FILENAME'] ? ENV['SETTINGS_FILENAME'] : File.dirname(__FILE__) + '/../config/settings.yml'
+    $logger.info("Loading settings file #{settings_filename}")
+    $app_settings ||= YAML.load_file(settings_filename)
+
+    set :service, UserProvisioner.new($logger, $app_settings)
+
+    $logger.info 'verifying existing users...'
+    settings.service.verify_users_exist!
+    $logger.info 'started!'
+  end
+
   before '*' do
     content_type :json
   end
@@ -65,41 +89,12 @@ class CFSharedFSAgent < Sinatra::Base
 
   private
 
-  def self.service
-    @service ||= UserProvisioner.new $logger, $app_settings
-  end
-
   def service
-    @service ||= UserProvisioner.new $logger, $app_settings
+    settings.service
   end
 
   def agent_name
     $app_settings['agent_name']
   end
-
-
-  configure :development do
-    set :database, 'sqlite3:db/development.sqlite3'
-  end
-
-  configure :production do
-    set :database, 'sqlite3:/var/vcap/store/sharedfs/sharedfs.sqlite3'
-  end
-
-  configure do
-    $logger.info('*==========================*')
-    $logger.info('*cf-sharedfs agent starting*')
-    $logger.info('*==========================*')
-
-    settings_filename = ENV['SETTINGS_FILENAME'] ? ENV['SETTINGS_FILENAME'] : File.dirname(__FILE__) + '/../config/settings.yml'
-    $logger.info("Loading settings file #{settings_filename}")
-    $app_settings ||= YAML.load_file(settings_filename)
-
-    # p self.service
-    # TODO: make this better
-    service.verify_users_exist!
-    $logger.info 'started'
-  end
-
 
 end

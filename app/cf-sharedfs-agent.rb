@@ -96,7 +96,7 @@ class CFSharedFSAgent < Sinatra::Base
     $app_settings ||= YAML.load_file(settings_filename)
 
     # p self.service
-
+    # TODO: make this better
     service.verify_users_exist!
     $logger.info 'started'
   end

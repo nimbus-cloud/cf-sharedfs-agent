@@ -43,7 +43,7 @@ class CFSharedFSAgent < Sinatra::Base
 
   get '/' do
     {
-        :msg => 'CFSharedFS Agent'
+        :msg => "CFSharedFS Agent #{agent_name}"
     }.to_json
   end
 

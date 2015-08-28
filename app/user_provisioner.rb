@@ -38,7 +38,6 @@ class UserProvisioner
     execute_command("su - #{username} -c 'ssh-keygen -q -N \"\" -f /var/vcap/store/sharedfs/home/#{username}/.ssh/id_rsa'")
     execute_command("mv /var/vcap/store/sharedfs/home/#{username}/.ssh/id_rsa.pub /var/vcap/store/sharedfs/home/#{username}/.ssh/authorized_keys")
 
-    # TODO - FIX THIS
     result = execute_command("id -u #{username}")
     useruid = result.chomp
     result = execute_command("id -g #{username}",)

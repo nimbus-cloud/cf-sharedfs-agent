@@ -103,4 +103,37 @@ describe 'sharedfs agent routes' do
     end
 
   end
+
+  context 'user provisioner service - verify_users_exist!' do
+
+    it 'does nothing when there are no services' do
+      app.new.settings.service.verify_users_exist!
+    end
+
+    context 'when a vm has been recreated' do
+
+      it 'recreates users on startup ' do
+        # create the service, get the user
+        app.new.settings.service.provision '123', '456', '7'
+        _, _, creds = app.new.settings.service.credentials '123'
+
+        # delete user without removing home folder
+        `userdel #{creds[:username]}`
+
+        # verify users
+        app.new.settings.service.verify_users_exist!
+
+        # check the user is there
+        `id #{creds[:username]}`
+         expect($?.to_i).to eq 0
+
+        # and identity stays the same
+        home_folder = `eval echo ~#{creds[:username]}`.chomp
+        expect(creds[:identity]).to eq(File.read("#{home_folder}/.ssh/id_rsa"))
+      end
+
+    end
+
+  end
+
 end

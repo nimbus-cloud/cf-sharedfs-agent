@@ -1,6 +1,9 @@
 require 'open4'
 require 'timeout'
 
+class CommandFailedError < StandardError
+end
+
 module CommandRunner
 
   def execute_command(command)
@@ -15,8 +18,10 @@ module CommandRunner
         end
       end
     end
-    puts "Finished command \"#{command}\", STATUS: #{status.to_i}, OUTPUT:\n#{out}"
-    raise "Command \"#{command}\" failed, PID: #{pid}" unless status.to_i == 0
+    puts "Finished command \"#{command}\", STATUS: #{status.to_i}, PID: #{pid}, OUTPUT:\n#{out}"
+    if status.to_i != 0
+      raise CommandFailedError, "Command \"#{command}\" failed, STATUS: #{status.to_i}, PID: #{pid}, OUTPUT:\n#{out}"
+    end
     out
   rescue Timeout::Error
     puts "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
@@ -24,7 +29,7 @@ module CommandRunner
     # we need to collect status so it doesn't
     # stick around as zombie process
     Process.wait pid
-    raise "Command \"#{command}\" timed out, PID: #{pid}"
+    raise "Command \"#{command}\" timed out, PID: #{pid}, OUTPUT:\n#{out}"
   end
 
 end

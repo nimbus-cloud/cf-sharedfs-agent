@@ -13,8 +13,9 @@ class UserProvisioner
 
   def verify_users_exist!
     Service.all.each do |service|
-      results = execute_command("id #{service.username}")
-      if results[:status] != 0
+      begin
+        execute_command("id #{service.username}")
+      rescue CommandFailedError
         # this user does not exist lets try and create it.
         # failures here could break the service. but maybe thats not a bad thing
         # if an alert goes out

@@ -48,11 +48,11 @@ class CFSharedFSAgent < Sinatra::Base
   end
 
   get '/discover' do
+    disk_free = service.disk_free
+
     {
         :name => agent_name,
-        :disk_size => '10000', # WTF ???
-        :disk_free => '1000', # WTF ???
-        :cpu_load => '1000'
+        :disk_free => disk_free
     }.to_json
   end
 

@@ -26,6 +26,10 @@ class UserProvisioner
     end
   end
 
+  def disk_free
+    result = execute_command("df /var/vcap/store | tail -n 1 | awk '{print $4}'")
+    result.chomp.to_i
+  end
 
   def provision(service_id, plan_id, size)
     username = generate_username
@@ -43,7 +47,7 @@ class UserProvisioner
     result = execute_command("id -g #{username}",)
     groupid = result.chomp
 
-    #TODO : Set up quota here as well
+    # TODO : Set up quota here as well
     Service.create(
         :service_id => service_id,
         :plan_id => plan_id,

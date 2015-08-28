@@ -12,7 +12,7 @@ describe 'sharedfs agent routes' do
 
   before(:each) do
     Service.delete_all
-    FileUtils.mkdir_p '/var/vcap'
+    FileUtils.mkdir_p '/var/vcap/store'
   end
 
   after(:each) do
@@ -33,7 +33,8 @@ describe 'sharedfs agent routes' do
 
     expect(last_response).to be_ok
     expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
-    # TODO: disk size, cpu
+    expect(resp_hash['disk_free'].is_a? Integer).to eq true
+    expect(resp_hash['disk_free'] > 0).to eq true
   end
 
   it 'provision route "/provision/:service_id/:plan_id/:size"' do

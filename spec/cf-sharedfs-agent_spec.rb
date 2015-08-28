@@ -10,13 +10,12 @@ describe 'sharedfs agent routes' do
 
   include_context :rack_test
 
-  before(:all) do
+  before(:each) do
     Service.delete_all
-    FileUtils.rm_rf '/var/vcap'
     FileUtils.mkdir_p '/var/vcap'
   end
 
-  after(:all) do
+  after(:each) do
     Service.delete_all
     Dir['/var/vcap/store/sharedfs/home/*'].select {|f| File.directory? f}.map{|d| File.basename d}.each{|u| `userdel -r #{u}`}
     FileUtils.rm_rf '/var/vcap'
@@ -33,7 +32,7 @@ describe 'sharedfs agent routes' do
     get '/discover'
 
     expect(last_response).to be_ok
-    expect(resp_hash['name']).to eq 'uniquename1'
+    expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
     # TODO: disk size, cpu
   end
 
@@ -42,28 +41,65 @@ describe 'sharedfs agent routes' do
 
     expect(last_response).to be_ok
     expect(resp_hash['success']).to eq true
-    expect(resp_hash['name']).to eq 'uniquename1'
+    expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
     expect(resp_hash['msg']).to eq 'OK'
   end
 
+  context 'unprovision route /unprovision/:service_id' do
 
+    it 'returns false when service does not exist' do
+      get '/unprovision/123'
 
-    # it 'allows access to O2 ip address' do
-    #   header 'x-lb-forwarded-for', '93.174.159.102%10'
-    #   get '/home/sky-at-the-o2/idnv/index'
-    #
-    #   expect(last_response).to be_ok
-    # end
-    #
-    # it 'denies access to anything else' do
-    #   header 'x-lb-forwarded-for', '10.65.93.21'
-    #   get '/home/sky-at-the-o2/idnv/index'
-    #
-    #   expect(last_response).to_not be_ok
-    #   expect(last_response.status).to eq 401
-    # end
+      expect(last_response).to be_ok
+      expect(resp_hash['success']).to eq false
+      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
+      expect(resp_hash['msg']).to eq 'Service 123 not found'
+    end
 
+    it 'returns true when service exist' do
+      get '/provision/123/456/7'
 
+      get '/unprovision/123'
 
+      expect(last_response).to be_ok
+      expect(resp_hash['success']).to eq true
+      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
+      expect(resp_hash['msg']).to eq 'OK'
+    end
 
+  end
+
+  context 'credentials route /credentials/:service_id' do
+
+    it 'returns false when service does not exist' do
+      get '/credentials/123'
+
+      expect(last_response).to be_ok
+      expect(resp_hash['success']).to eq false
+      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
+      expect(resp_hash['msg']).to eq 'Service 123 not found'
+      expect(resp_hash['credentials']).to eq nil
+    end
+
+    it 'returns true when service exist' do
+      get '/provision/123/456/7'
+
+      get '/credentials/123'
+
+      expect(last_response).to be_ok
+      expect(resp_hash['success']).to eq true
+      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
+      expect(resp_hash['msg']).to eq 'OK'
+
+      service = Service.where(:service_id => '123').first
+      credentials = resp_hash['credentials']
+
+      expect(credentials['username']).to eq service.username
+      expect(credentials['hostname']).to eq 'dnsname1.somesite.com'
+      expect(credentials['host']).to eq 'dnsname1.somesite.com'
+      expect(credentials['port']).to eq 22
+      expect(credentials['identity']).to eq(File.read("/var/vcap/store/sharedfs/home/#{service.username}/.ssh/id_rsa"))
+    end
+
+  end
 end

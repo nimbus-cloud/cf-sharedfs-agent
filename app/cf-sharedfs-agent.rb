@@ -73,7 +73,7 @@ class CFSharedFSAgent < Sinatra::Base
         :name => agent_name,
         :success => success,
         :msg => msg
-    }
+    }.to_json
   end
 
   get '/credentials/:service_id' do

@@ -3,9 +3,8 @@ broker_end_point: http://cf-sharedfs-broker.10.244.0.34.xip.io
 broker_username: admin
 broker_password: password
 
-agent_name: uniquename1
+agent_name: cf-sharedfs-l1-01_0
 
 agent_dns_address: dnsname1.somesite.com
 
-firewall_allow_rules: 10.225.0.34,10.225.0.35
-
+firewall_allow_rules: ["10.76.245.71", "10.92.245.71"]

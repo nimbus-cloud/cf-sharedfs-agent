@@ -59,14 +59,16 @@ class UserProvisioner
   end
 
   def unprovision(service_id)
-    # We don't own this service
-    return unless Service.exists?(:service_id => service_id)
+
+    unless Service.exists?(:service_id => service_id)
+      return [false, "Service #{service_id} not found"]
+    end
 
     logger.info("Unprovisioning service #{service_id}")
 
     # we should only get one
     Service.where(service_id: service_id).each do |srv|
-      raise 'No username found' if srv.username.nil? || srv.username == ''
+      raise "Empty username for service_id: #{service_id}" if srv.username.nil? || srv.username == ''
       execute_command("rm -rf /var/vcap/store/sharedfs/home/#{srv.username}")
       execute_command("userdel #{srv.username}")
     end
@@ -80,23 +82,23 @@ class UserProvisioner
   end
 
   def credentials(service_id)
-    # We don't own this service
-    return unless Service.exists?(:service_id => :service_id)
+
+    unless Service.exists?(:service_id => service_id)
+      return [false, "Service #{service_id} not found", nil]
+    end
 
     logger.info("Getting credentials for service: #{service_id}")
 
-    service = Service.where(service_id: :service_id).first
-    key = File.read("/var/vcap/store/sharedfs/home/#{service.username}/.ssh/id_rsa", 'r')
+    service = Service.where(:service_id => service_id).first
+    key = File.read("/var/vcap/store/sharedfs/home/#{service.username}/.ssh/id_rsa")
     credentials = {
         :username => service.username,
         :hostname => config['agent_dns_address'],
         :host => config['agent_dns_address'],
         :port => 22,
-        :identity => key
+        :identity => key,
+        :firewall_allow_rules => config['firewall_allow_rules'].map { |i| i.to_s }.join(',')
     }
-    if config['firewall_allow_rules']
-      credentials[:firewall_allow_rules] = config['firewall_allow_rules'].map { |i| i.to_s }.join(',')
-    end
 
     [true, 'OK', credentials]
   rescue => e
@@ -106,7 +108,6 @@ class UserProvisioner
 
   private
 
-  # TODO: there must be a nicer way of doing this
   def generate_username
     result = File.open('/dev/urandom') { |x| x.read(16).unpack('H*')[0] }
     m = /(.{10})$/.match(result)

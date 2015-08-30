@@ -64,7 +64,7 @@ class CFSharedFSAgent < Sinatra::Base
     }.to_json
   end
 
-  get '/unprovision/:service_id' do
+  delete '/unprovision/:service_id' do
     success, msg = service.unprovision(params[:service_id])
 
     {

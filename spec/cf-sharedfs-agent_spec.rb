@@ -47,7 +47,7 @@ describe 'sharedfs agent routes' do
   context 'unprovision route /unprovision/:service_id' do
 
     it 'returns false when service does not exist' do
-      get '/unprovision/123'
+      delete '/unprovision/123'
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq false
@@ -57,7 +57,7 @@ describe 'sharedfs agent routes' do
     it 'returns true when service exist' do
       put '/provision/123/456/7'
 
-      get '/unprovision/123'
+      delete '/unprovision/123'
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq true

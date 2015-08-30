@@ -55,8 +55,8 @@ class CFSharedFSAgent < Sinatra::Base
     }.to_json
   end
 
-  put '/provision/:service_id/:plan_id/:size' do
-    success, msg = service.provision(params[:service_id], params[:plan_id], params[:size])
+  put '/provision/:service_id/:plan_id/:size' do |service_id, plan_id, size|
+    success, msg = service.provision(service_id, plan_id, size)
 
     {
         success: success,
@@ -64,8 +64,8 @@ class CFSharedFSAgent < Sinatra::Base
     }.to_json
   end
 
-  delete '/unprovision/:service_id' do
-    success, msg = service.unprovision(params[:service_id])
+  delete '/unprovision/:service_id' do |service_id|
+    success, msg = service.unprovision(service_id)
 
     {
         :success => success,
@@ -73,8 +73,8 @@ class CFSharedFSAgent < Sinatra::Base
     }.to_json
   end
 
-  get '/credentials/:service_id' do
-    success, msg, credentials = service.credentials(params[:service_id])
+  get '/credentials/:service_id' do |service_id|
+    success, msg, credentials = service.credentials(service_id)
 
     {
         :success => success,

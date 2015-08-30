@@ -32,7 +32,6 @@ describe 'sharedfs agent routes' do
     get '/discover'
 
     expect(last_response).to be_ok
-    expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
     expect(resp_hash['disk_free'].is_a? Integer).to eq true
     expect(resp_hash['disk_free'] > 0).to eq true
   end
@@ -42,7 +41,6 @@ describe 'sharedfs agent routes' do
 
     expect(last_response).to be_ok
     expect(resp_hash['success']).to eq true
-    expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
     expect(resp_hash['msg']).to eq 'OK'
   end
 
@@ -53,7 +51,6 @@ describe 'sharedfs agent routes' do
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq false
-      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
       expect(resp_hash['msg']).to eq 'Service 123 not found'
     end
 
@@ -64,7 +61,6 @@ describe 'sharedfs agent routes' do
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq true
-      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
       expect(resp_hash['msg']).to eq 'OK'
     end
 
@@ -77,7 +73,6 @@ describe 'sharedfs agent routes' do
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq false
-      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
       expect(resp_hash['msg']).to eq 'Service 123 not found'
       expect(resp_hash['credentials']).to eq nil
     end
@@ -89,7 +84,6 @@ describe 'sharedfs agent routes' do
 
       expect(last_response).to be_ok
       expect(resp_hash['success']).to eq true
-      expect(resp_hash['name']).to eq 'cf-sharedfs-l1-01_0'
       expect(resp_hash['msg']).to eq 'OK'
 
       service = Service.where(:service_id => '123').first

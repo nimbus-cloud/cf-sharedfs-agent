@@ -51,7 +51,6 @@ class CFSharedFSAgent < Sinatra::Base
     disk_free = service.disk_free
 
     {
-        :name => agent_name,
         :disk_free => disk_free
     }.to_json
   end
@@ -60,7 +59,6 @@ class CFSharedFSAgent < Sinatra::Base
     success, msg = service.provision(params[:service_id], params[:plan_id], params[:size])
 
     {
-        :name => agent_name,
         success: success,
         :msg => msg
     }.to_json
@@ -70,7 +68,6 @@ class CFSharedFSAgent < Sinatra::Base
     success, msg = service.unprovision(params[:service_id])
 
     {
-        :name => agent_name,
         :success => success,
         :msg => msg
     }.to_json
@@ -80,7 +77,6 @@ class CFSharedFSAgent < Sinatra::Base
     success, msg, credentials = service.credentials(params[:service_id])
 
     {
-        :name => agent_name,
         :success => success,
         :msg => msg,
         :credentials => credentials

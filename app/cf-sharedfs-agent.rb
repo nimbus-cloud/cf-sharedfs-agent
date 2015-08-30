@@ -56,7 +56,7 @@ class CFSharedFSAgent < Sinatra::Base
     }.to_json
   end
 
-  get '/provision/:service_id/:plan_id/:size' do
+  put '/provision/:service_id/:plan_id/:size' do
     success, msg = service.provision(params[:service_id], params[:plan_id], params[:size])
 
     {

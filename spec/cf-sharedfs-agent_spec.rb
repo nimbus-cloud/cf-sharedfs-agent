@@ -38,7 +38,7 @@ describe 'sharedfs agent routes' do
   end
 
   it 'provision route "/provision/:service_id/:plan_id/:size"' do
-    get '/provision/123/456/7'
+    put '/provision/123/456/7'
 
     expect(last_response).to be_ok
     expect(resp_hash['success']).to eq true
@@ -58,7 +58,7 @@ describe 'sharedfs agent routes' do
     end
 
     it 'returns true when service exist' do
-      get '/provision/123/456/7'
+      put '/provision/123/456/7'
 
       get '/unprovision/123'
 
@@ -83,7 +83,7 @@ describe 'sharedfs agent routes' do
     end
 
     it 'returns true when service exist' do
-      get '/provision/123/456/7'
+      put '/provision/123/456/7'
 
       get '/credentials/123'
 

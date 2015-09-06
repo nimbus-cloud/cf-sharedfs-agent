@@ -13,6 +13,8 @@ class CFSharedFSAgent < Sinatra::Base
 
   register Sinatra::ActiveRecordExtension
 
+  use Rack::CommonLogger, $logger
+
   configure :development do
     set :database, 'sqlite3:db/development.sqlite3'
   end
@@ -56,6 +58,7 @@ class CFSharedFSAgent < Sinatra::Base
   end
 
   put '/provision/:service_id/:plan_id/:size' do |service_id, plan_id, size|
+    $logger.info "provisioning service: #{service_id}, plan: #{plan_id}, size: #{size}"
     success, msg = service.provision(service_id, plan_id, size)
 
     {
@@ -65,6 +68,7 @@ class CFSharedFSAgent < Sinatra::Base
   end
 
   delete '/unprovision/:service_id' do |service_id|
+    $logger.info "unprovisioning service: #{service_id}"
     success, msg = service.unprovision(service_id)
 
     {
@@ -74,6 +78,7 @@ class CFSharedFSAgent < Sinatra::Base
   end
 
   get '/credentials/:service_id' do |service_id|
+    $logger.info "getting credentials for service: #{service_id}"
     success, msg, credentials = service.credentials(service_id)
 
     {

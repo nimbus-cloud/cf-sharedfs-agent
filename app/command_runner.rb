@@ -18,13 +18,13 @@ module CommandRunner
         end
       end
     end
-    puts "Finished command \"#{command}\", STATUS: #{status.to_i}, PID: #{pid}, OUTPUT:\n#{out}"
+    logger.info "Finished command \"#{command}\", STATUS: #{status.to_i}, PID: #{pid}, OUTPUT:\n#{out}"
     if status.to_i != 0
       raise CommandFailedError, "Command \"#{command}\" failed, STATUS: #{status.to_i}, PID: #{pid}, OUTPUT:\n#{out}"
     end
     out
   rescue Timeout::Error
-    puts "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
+    logger "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
     Process.kill 9, pid
     # we need to collect status so it doesn't
     # stick around as zombie process

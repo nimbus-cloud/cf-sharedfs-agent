@@ -34,6 +34,8 @@ class CFSharedFSAgent < Sinatra::Base
 
     set :service, UserProvisioner.new($logger, $app_settings)
 
+    ActiveRecord::Base.logger = Logger.new($stdout)
+
     $logger.info 'verifying existing users...'
     settings.service.verify_users_exist!
     $logger.info 'started!'

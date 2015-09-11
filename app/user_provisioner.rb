@@ -48,7 +48,10 @@ class UserProvisioner
     result = execute_command("id -g #{username}",)
     groupid = result.chomp
 
-    # TODO : Set up quota here as well
+    # TODO: Set up quota here as well
+    # TODO: Rarely getting very slow commits, the one below took nearly 47 seconds
+    # [2015-09-11T08:58:14.051972 #16362] DEBUG -- :   SQL (0.4ms)  INSERT INTO "services" ("service_id", "plan_id", "quota", "username", "uid", "gid") VALUES (?, ?, ?, ?, ?, ?)  [["service_id", "cef52253-b9a0-4707-852d-4ea3d8a065dc"], ["plan_id", "90b3d933-1328-4326-8044-3590eaab394a"], ["quota", "2048"], ["username", "ce57c9bb5f"], ["uid", "1014"], ["gid", "1014"]]
+    # [2015-09-11T08:59:00.890311 #16362] DEBUG -- :    (46837.6ms)  commit transaction
     Service.create(
         :service_id => service_id,
         :plan_id => plan_id,

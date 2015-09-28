@@ -16,13 +16,7 @@ class UserProvisioner
       begin
         execute_command("id #{service.username}")
       rescue CommandFailedError
-        # this user does not exist lets try and create it.
-        # failures here could break the service. but maybe thats not a bad thing
-        # if an alert goes out
-        # because bosh temp users and these sshfs users share the same uid pools,
-        # there maybe a conflict. Consider moving the sshfs uids/guids to their own range
-        execute_command("groupadd -g #{service.gid} #{service.username}")
-        execute_command("useradd #{service.username} -d /var/vcap/store/sharedfs/home/#{service.username} -s /bin/bash -g #{service.gid} -u #{service.uid} -g #{service.gid}")
+        recreate_user(service)
       end
     end
   end
@@ -115,6 +109,17 @@ class UserProvisioner
   end
 
   private
+
+  def recreate_user(service)
+    # this user does not exist lets try and create it.
+    # failures here could break the service. but maybe thats not a bad thing
+    # if an alert goes out
+    # because bosh temp users and these sshfs users share the same uid pools,
+    # there maybe a conflict. Consider moving the sshfs uids/guids to their own range
+    logger.info "recreating user #{service.username}"
+    execute_command("groupadd -g #{service.gid} #{service.username}")
+    execute_command("useradd #{service.username} -d /var/vcap/store/sharedfs/home/#{service.username} -s /bin/bash -g #{service.gid} -u #{service.uid} -g #{service.gid}")
+  end
 
   def generate_username
     result = File.open('/dev/urandom') { |x| x.read(16).unpack('H*')[0] }

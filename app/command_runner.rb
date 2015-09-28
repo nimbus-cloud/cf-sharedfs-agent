@@ -8,7 +8,7 @@ module CommandRunner
 
   def execute_command(command)
     pid, out = nil, ''
-    status = Timeout.timeout(5) do
+    status = Timeout.timeout(timeout_value) do
         # Open4::popen4("/bin/bash -c \"#{command}\" 2>&1") do |p, stdin, stdout, stderr|
         # above does not work when running: su - 5f091acbd4 -c 'ssh-keygen -q -N "" -f /var/vcap/store/sharedfs/home/5f091acbd4/.ssh/id_rsa'
         Open4::popen4("#{command} 2>&1") do |p, stdin, stdout, stderr|
@@ -24,7 +24,7 @@ module CommandRunner
     end
     out
   rescue Timeout::Error
-    logger "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
+    logger.error "Timed out on command \"#{command}\", PID: #{pid}, OUTPUT:\n#{out}"
     Process.kill 9, pid
     # we need to collect status so it doesn't
     # stick around as zombie process
@@ -32,10 +32,11 @@ module CommandRunner
     raise "Command \"#{command}\" timed out, PID: #{pid}, OUTPUT:\n#{out}"
   end
 
-end
+  private
 
-# include ::CommandRunner
-#
-# execute_command "ls -la"
-# puts execute_command "df -h"
-# execute_command "echo 'abc def ghijk '; sleep 6"
+  def timeout_value
+    override = ENV['TIMEOUT_OVERRIDE']
+    override ? override.to_i : 8
+  end
+
+end

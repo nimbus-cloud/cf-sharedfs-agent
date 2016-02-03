@@ -41,9 +41,18 @@ class CFSharedFSAgent < Sinatra::Base
     $logger.info 'started!'
   end
 
-  before '*' do
+  before do
     content_type :json
   end
+
+  after do
+    ActiveRecord::Base.connection_pool.disconnect!
+  end
+
+  get '/' do
+    {:msg => 'Cloud Foundry Proxy Broker'}.to_json
+  end
+
 
   get '/' do
     {

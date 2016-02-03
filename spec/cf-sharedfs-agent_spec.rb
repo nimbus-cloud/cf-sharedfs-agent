@@ -25,7 +25,7 @@ describe 'sharedfs agent routes' do
     get '/'
 
     expect(last_response).to be_ok
-    expect(resp_hash['msg']).to eq 'CFSharedFS Agent cf-sharedfs-l1-01_0'
+    expect(resp_hash['msg']).to eq 'Cloud Foundry Proxy Broker'
   end
 
   it 'discover route "/discover"' do
